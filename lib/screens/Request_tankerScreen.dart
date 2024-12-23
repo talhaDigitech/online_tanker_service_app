@@ -285,8 +285,9 @@ class _RequestTankerScreenState extends State<RequestTankerScreen> {
   void _handleRequest() async {
     if (selectedGPS != null && addressController.text.isNotEmpty && selectedGallans != null) {
       await _saveRequest();
+      
+      if (!mounted) return;
       Navigator.push(
-        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
           builder: (context) => BookingConfirmationScreen(
@@ -295,7 +296,18 @@ class _RequestTankerScreenState extends State<RequestTankerScreen> {
             hydrantLocation: 'Sakhi Hasan',
           ),
         ),
-      );
+      ).then((_) {
+        // Reset all fields after returning from BookingConfirmationScreen
+        setState(() {
+          selectedGPS = 'GPS';
+          selectedGallans = null;
+          addressController.clear();
+          showTankerFare = false;
+          tankerCharges = 0.0;
+          distanceFare = 0.0;
+        });
+      });
+      
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
